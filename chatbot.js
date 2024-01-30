@@ -4,7 +4,7 @@ var chatbot_name = '';
 var chatbot_toggle_picture = "";
 var user_chatmessage_color = "";
 var bot_chatmessage_color = "";
-const backend_url = "https://wash-mahdi-backend-ajpb.vercel.app"
+const backend_url = "https://backend-wgh5.vercel.app"
 
 fetch(`${backend_url}/v1/chatbot/settings`, {
   method: 'GET',
