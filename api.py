@@ -1,9 +1,5 @@
 import os
-import re
-import requests
 from langchain_community.vectorstores import FAISS
-from bs4 import BeautifulSoup
-from urllib.parse import urlparse, urljoin
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from langchain.prompts import PromptTemplate
@@ -13,8 +9,6 @@ from langchain_openai import OpenAIEmbeddings
 from fastapi import FastAPI, Header
 from fastapi.middleware.cors import CORSMiddleware
 from langchain.chains.question_answering import load_qa_chain
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import UnstructuredURLLoader
 
 class TrainURLPayload(BaseModel):
     domain:str='https://example.com'
@@ -50,8 +44,7 @@ load_dotenv()
 backend_key = os.getenv('BACKEND_KEY')
 
 app = FastAPI()
-app.title = "Wash Mahdi"
-origins = ["http://127.0.0.1:5501"] 
+origins = ["*"] 
 
 app.add_middleware(
     CORSMiddleware,
@@ -65,79 +58,7 @@ def validate_api_key(x_author:str):
     if x_author == backend_key:
         return True
     return False
-
-def is_valid_url(url):
-    # Define a regular expression pattern for a valid URL with http or https scheme
-    url_pattern = re.compile(
-        r'^(https?://)(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+[A-Za-z]{2,6}$'
-    )
-    # Check if the provided URL matches the pattern
-    if url_pattern.match(url):
-        return True
-    else:
-        return False
-        
-@app.post("/v1/chatbot/train/url")
-async def Train_chatbot_with_url(payload:TrainURLPayload,x_author: str = Header(None)):
-    # Validation of API key for the security purpose (You can say it as a password to protect the backend from being exposed)
-    if x_author == None:
-        return JSONResponse(content={'success':False,'error':'API key is missing'},status_code=401)
-    elif not validate_api_key(x_author):
-        return JSONResponse(content={'success':False,'error':'Invalid or expired api key!'},status_code=401)
-    
-    domain = payload.domain
-    # Check if the user has passed example domain link.
-    if domain == 'https://example.com':
-        return JSONResponse(content={'success':False,'error':'You can not use example domain. Please enter real domain.'},status_code=401)
-    # Ensure the domain is valid.
-    if not is_valid_url(domain):
-        return JSONResponse(content={'success':False,'error':f"'{domain}' is not a valid URL. Please ensure it starts with 'http://' or 'https://'."},status_code=400)
-    
-    persist_directory = 'trained_db/chatbot'
-    print("Starting Training for: ",domain)
-    # Send a GET request to the website
-    response = requests.get(domain)
-    
-    # Check if the request was successful (status code 200)
-    if response.status_code == 200:
-        # Parse the HTML content
-        soup = BeautifulSoup(response.text, 'html.parser')
-        
-        # Extract all the links
-        links = [a.get('href') for a in soup.find_all('a', href=True)]
-        
-        # Convert relative links to absolute links
-        base_url = urlparse(domain)
-        links = [urljoin(domain, link) for link in links]
-        links = list(set(links))
-    else:
-        print(f"Failed to retrieve content. Status code: {response.status_code}")
-        return JSONResponse(content={'error':'Failed while retriving links...'},status_code=400)
-    # Parsing Text from All the links extracted above
-    if payload.crawl_mode == 'crawl-all':
-        documents = UnstructuredURLLoader(urls=links,show_progress_bar=True,continue_on_failure=True).load()
-    elif payload.crawl_mode == 'crawl-single':
-        documents = UnstructuredURLLoader(urls=[domain],show_progress_bar=True,continue_on_failure=True).load()
-    else:
-        return JSONResponse(content={'success':False,'error':"Invalid crawl mode please choose either 'crawl-all' or 'crawl-single'"},status_code=500)
-    # Chunking large texts to a smaller chunk because we cannot send all the text at once in the prompt.
-    # Due to Token Limitation from OpenAI Chat Models
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=20)
-    split_docs = text_splitter.split_documents(documents)
-    try:
-        # Creating Embeddings for Retrived Text 
-        embeddings = OpenAIEmbeddings()
-        # Storing it VectorDB here I am using FAISS it is best fast and easiest to use for local savings of VectorStore 
-        new_vectordb = await FAISS.afrom_documents(split_docs, embeddings)
-        new_vectordb.save_local(persist_directory)
-        print(len(links))
-        return JSONResponse(content={
-            'success':True,
-            'message':f"Training of '{domain}' was successful!",
-            'found_links':links
-        },status_code=200)
-    except Exception as e:
-        return JSONResponse(content={'success':False,'error':str(e)},status_code=500)  
+         
     
 @app.post("/v1/chatbot/chat")
 async def chat_with_chatbot(payload:ChatPayload,x_author: str = Header(None)):
