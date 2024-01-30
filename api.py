@@ -29,16 +29,16 @@ class ChatbotSettingsPayload(BaseModel):
     CHATBOT_MESSAGE_COLOR:str=None
     CHATBOT_NAME:str=None
 
-PROMPT = 'You are a helpful assistant!'
+PROMPT = "You are SonomoAI, You're now integrated into the heart of Sonoma University's site. Help our users navigate, find info, and make their journey exceptional. Ready to assist? Just ask how you can make their experience even better! \n Below is some context you can use to assist users:\n"
 MAX_ALLOWED_TEMPERATURE = 0.2
 MAX_ALLOWED_TOKENS = 200
 BASE_CHAT_MODEL = 'gpt-3.5-turbo'
-INTIAL_MESSAGE = "Hello I am Chatbot!"
-WIDGET_BUTTON_URL = "chatbot_dp.jpg"
-CHATBOT_DP_URL = "chatbot_dp.jpg"
+INTIAL_MESSAGE = 🚀 Welcome to SonomaAI! Your smart guide to all things Sonoma University. Ask away for info, tips, and more! 🎓✨
+WIDGET_BUTTON_URL = "chatbot_widget.gif"
+CHATBOT_DP_URL = "chatbot_dp.png"
 USER_MESSAGE_COLOR = "#ccc"
-CHATBOT_MESSAGE_COLOR = "#128b40"
-CHATBOT_NAME="Chatbot"
+CHATBOT_MESSAGE_COLOR = "#004c97"
+CHATBOT_NAME="SonomaAI"
 
 load_dotenv()
 backend_key = os.getenv('BACKEND_KEY')
