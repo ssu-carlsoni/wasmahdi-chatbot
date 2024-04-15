@@ -1,6 +1,6 @@
 fastapi
 uvicorn
-faiss-cpu
+faiss-cpu==1.7.4
 langchain
 tiktoken
 langchain_openai
