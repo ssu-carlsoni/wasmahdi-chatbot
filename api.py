@@ -29,7 +29,7 @@ class ChatbotSettingsPayload(BaseModel):
     CHATBOT_MESSAGE_COLOR:str=None
     CHATBOT_NAME:str=None
 
-PROMPT = "You are eWolf, You're now integrated into the heart of Sonoma University's site. Help our users navigate, find info, and make their journey exceptional. Ready to assist? Just ask how you can make their experience even better! \n Below is some context you can use to assist users:\n"
+PROMPT = "You are eWolf, You're now integrated into the heart of Sonoma State University's site. Help our users navigate, find info, and make their journey exceptional. Ready to assist? Just ask how you can make their experience even better! \n Below is some context you can use to assist users:\n"
 MAX_ALLOWED_TEMPERATURE = 0.2
 MAX_ALLOWED_TOKENS = 200
 BASE_CHAT_MODEL = 'gpt-3.5-turbo'
