@@ -78,7 +78,7 @@ async def chat_with_chatbot(payload:ChatPayload,x_author: str = Header(None)):
         embeddings = OpenAIEmbeddings()
         persist_directory = f'trained_db/chatbot'
         #Loading our VectorDatabase
-        Vectordb = FAISS.load_localFAISS.load_local(
+        Vectordb = FAISS.load_local(
             persist_directory,
             embeddings,
             allow_dangerous_deserialization = True
